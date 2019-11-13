@@ -236,6 +236,9 @@ bool enqueue_and_echo_command(const char* cmd);           // Add a single comman
 void enqueue_and_echo_commands_P(const char * const cmd); // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
+extern millis_t previous_cmd_ms;
+inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
+
 #if ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(POWER_LOSS_RECOVERY)
   extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
 #endif
@@ -470,8 +473,12 @@ void report_current_position();
   void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
+  extern float probe_zoffset;
+  extern float last_zoffset;
+
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
+  void refresh_zprobe_zoffset(const bool no_babystep=false);
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
     void move_z_after_probing();
@@ -544,6 +551,10 @@ extern uint8_t active_extruder;
 
 #if ENABLED(MIXING_EXTRUDER)
   extern float mixing_factor[MIXING_STEPPERS];
+#endif
+
+#if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
+  void init_power_off_info();
 #endif
 
 inline void set_current_from_destination() { COPY(current_position, destination); }

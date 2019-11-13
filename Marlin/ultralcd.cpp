@@ -5190,7 +5190,7 @@ void lcd_update() {
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
-    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
+    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED;
     if (sd_status != lcd_sd_status && lcd_detected()) {
 
       uint8_t old_sd_status = lcd_sd_status; // prevent re-entry to this block!

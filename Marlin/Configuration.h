@@ -1924,13 +1924,14 @@
 
 
 // CREALITY CR10S Info
-#define	MAC_LENGTH		X_BED_SIZE
-#define	MAC_WIDTH			Y_BED_SIZE
-#define	MAC_HEIGHT		Z_MAX_POS
-#define	MACVERSION		STRING_CONFIG_H_AUTHOR // " CR-10S "
-#define	SOFTVERSION		SHORT_BUILD_VERSION // " Ver 1.10.0"
-#define	CORP_WEBSITE_C	CN_WELCOME_MSG
-#define	CORP_WEBSITE_E	"www.creality3d.cn"
+#define CN_WELCOME_MSG                         "www.cxsw3d.com    "
+#define    MAC_LENGTH        X_BED_SIZE
+#define    MAC_WIDTH            Y_BED_SIZE
+#define    MAC_HEIGHT        Z_MAX_POS
+#define    MACVERSION        STRING_CONFIG_H_AUTHOR // " CR-10S "
+#define    SOFTVERSION        SHORT_BUILD_VERSION // " Ver 1.10.0"
+#define    CORP_WEBSITE_C    CN_WELCOME_MSG
+#define    CORP_WEBSITE_E    "www.creality3d.cn"
 
 // If power off, after power on, the printing can be resumed. 
 #define POWEROFF_SAVE_SD_FILE

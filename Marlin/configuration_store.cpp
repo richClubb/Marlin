@@ -336,6 +336,10 @@ void MarlinSettings::postprocess() {
     set_z_fade_height(new_z_fade_height, false); // false = no report
   #endif
 
+  #if HAS_BED_PROBE
+    refresh_zprobe_zoffset();
+  #endif
+
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     refresh_bed_level();
   #endif

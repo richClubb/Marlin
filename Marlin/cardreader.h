@@ -45,6 +45,14 @@ public:
 
   void openFile(char * const path, const bool read, const bool subcall=false);
   void openLogFile(char * const path);
+  #if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
+  void openPowerOffFile(char* name, uint8_t oflag);
+  void closePowerOffFile();
+  bool existPowerOffFile(char* name);
+  int16_t savePowerOffInfo(const void* data, uint16_t size);
+  int16_t getPowerOffInfo(void* data, uint16_t size);
+  void removePowerOffFile();
+  #endif
   void removeFile(const char * const name);
   void closefile(const bool store_location=false);
   void release();
@@ -181,6 +189,10 @@ private:
   #if ENABLED(POWER_LOSS_RECOVERY)
     SdFile jobRecoveryFile;
   #endif
+  
+  #if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
+	SdFile powerOffFile;
+  #endif
 
   #define SD_PROCEDURE_DEPTH 1
   #define MAXPATHNAMELENGTH (FILENAME_LENGTH*MAX_DIR_DEPTH + MAX_DIR_DEPTH + 1)
@@ -206,9 +218,9 @@ private:
 
 #if PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED()  READ(SD_DETECT_PIN)
+    #define IS_SD_INSERTED  READ(SD_DETECT_PIN)
   #else
-    #define IS_SD_INSERTED() !READ(SD_DETECT_PIN)
+    #define IS_SD_INSERTED !READ(SD_DETECT_PIN)
   #endif
 #else
   // No card detect line? Assume the card is inserted.
@@ -216,6 +228,40 @@ private:
 #endif
 
 extern CardReader card;
+
+#if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
+struct power_off_info_t
+{
+  /* header (1B + 7B = 8B) */
+  uint8_t valid_head;
+  // uint8_t reserved1[8-1];
+  /* Gcode related information. (44B + 20B = 64B) */
+  float current_position[NUM_AXIS];
+  float feedrate;
+  float saved_z;
+  int target_temperature[4];
+  int target_temperature_bed;
+  int saved_extruder;
+  // uint8_t reserved2[64-44];
+  /* print queue related information. (396B + 116B = 512B) */
+  int cmd_queue_index_r;
+  int cmd_queue_index_w;
+  int commands_in_queue;
+  char command_queue[BUFSIZE][MAX_CMD_SIZE];
+  // uint8_t reserved3[512-396];
+  /* SD card related information. (165B + 91B = 256B)*/
+  uint32_t sdpos;
+  millis_t print_job_ms;
+  char sd_filename[MAXPATHNAMELENGTH];
+  char power_off_filename[16];
+  // uint8_t reserved4[256-166];
+  uint8_t valid_foot;
+};
+
+extern struct power_off_info_t power_off_info;
+extern int power_off_commands_count;
+extern int power_off_type_yes;
+#endif
 
 #endif // SDSUPPORT
 

@@ -333,6 +333,64 @@ void appendAtom(SdFile &file, char *& dst, uint8_t &cnt) {
   if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
 }
 
+#if ENABLED(SDSUPPORT) && ENABLED(POWEROFF_SAVE_SD_FILE)
+void CardReader::openPowerOffFile(char* name, uint8_t oflag)
+{
+	if (!cardOK) return;
+	if (powerOffFile.isOpen()) return;
+	if (!powerOffFile.open(&root, name, oflag))
+	{
+	  SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
+	  SERIAL_PROTOCOL(name);
+	  SERIAL_PROTOCOLPGM(".\n");
+	}
+	else 
+	{
+	  SERIAL_PROTOCOLPGM(MSG_SD_WRITE_TO_FILE);
+	  SERIAL_PROTOCOLLN(name);
+	}
+}
+
+void CardReader::closePowerOffFile() 
+{
+  powerOffFile.close();
+}
+
+bool CardReader::existPowerOffFile(char* name) 
+{
+	bool ret = powerOffFile.open(&root, name, O_READ);
+//	if (ret) 
+//	{
+//		powerOffFile.close();
+//	}
+	return ret;
+}
+
+int16_t CardReader::savePowerOffInfo(const void* data, uint16_t size)
+{
+	powerOffFile.seekSet(0);
+	return powerOffFile.write(data, size);
+}
+
+int16_t CardReader::getPowerOffInfo(void* data, uint16_t size) 
+{
+	return powerOffFile.read(data, size);
+}
+
+void CardReader::removePowerOffFile()
+{
+	if (powerOffFile.remove(&root, power_off_info.power_off_filename))
+	{
+		SERIAL_PROTOCOLPGM("File(bin) deleted");
+	}
+	else
+	{
+		SERIAL_PROTOCOLPGM("Deletion(bin) failed");
+	}
+	SERIAL_PROTOCOLPGM(".\n");
+}
+#endif
+
 void CardReader::getAbsFilename(char *t) {
   *t++ = '/';                                               // Root folder
   uint8_t cnt = 1;
